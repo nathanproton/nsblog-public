@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Work - Nathan Simpson</title>
+    <script src="js/components.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/work.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => initializePage(false));
+    </script>
+    <style>
+        .work-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .work-item {
+            display: table;
+            width: 100%;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .work-item > span {
+            display: inline-block;
+            line-height: 1.4;
+            vertical-align: top;
+        }
+        .work-item:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        .work-title {
+            width: 50%;
+            font-weight: bold;
+            padding-right: 2rem;
+        }
+        .work-description {
+            width: 25%;
+            color: #666;
+        }
+        .work-role {
+            width: 12.5%;
+            color: #666;
+            font-style: italic;
+        }
+        .work-year {
+            width: 12.5%;
+            color: #888;
+            text-align: right;
+        }
+        .work-item[data-url] {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="work-list">
+            <!-- Work items will be dynamically loaded here -->
+        </div>
+    </main>
+</body>
+</html> 

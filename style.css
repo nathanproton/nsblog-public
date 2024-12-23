@@ -1,0 +1,270 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 2rem;
+    color: #333;
+}
+
+/* Navigation */
+nav {
+    margin-bottom: 4rem;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+}
+
+nav a {
+    color: #333;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Post list */
+.post {
+    margin-bottom: 2rem;
+}
+
+.post a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.post h2 {
+    font-size: 1.1rem;
+    font-weight: normal;
+}
+
+.post-meta {
+    color: #666;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 1rem;
+}
+
+/* Work page specific */
+.work-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+}
+
+/* Typography */
+h1, h2 {
+    font-weight: normal;
+}
+
+/* Links */
+a {
+    color: #333;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    body {
+        padding: 1rem;
+    }
+    
+    .post a {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* About page styles */
+.about {
+    margin-top: 2rem;
+}
+
+.about h1 {
+    margin-bottom: 2rem;
+}
+
+.about-content {
+    font-size: 1.1rem;
+}
+
+.about-content p {
+    margin-bottom: 1.5rem;
+}
+
+.social-links {
+    margin: 2rem 0;
+}
+
+.social-links a {
+    margin-right: 1.5rem;
+    color: #333;
+}
+
+.social-links a:hover {
+    text-decoration: underline;
+}
+
+/* Blog post styles */
+.post-content {
+    margin-top: 2rem;
+}
+
+.post-content h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.post-metadata {
+    color: #666;
+    margin-bottom: 3rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.content h2 {
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem 0;
+}
+
+.content p {
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+}
+
+blockquote {
+    border-left: 3px solid #333;
+    padding-left: 1rem;
+    margin: 2rem 0;
+    font-style: italic;
+}
+
+pre {
+    background: #f5f5f5;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+}
+
+code {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.post-footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+.sources {
+    margin: 2rem 0;
+}
+
+.sources h3 {
+    margin-bottom: 1rem;
+}
+
+.sources ol {
+    padding-left: 1.5rem;
+}
+
+.subscribe {
+    margin-top: 3rem;
+}
+
+.subscribe a {
+    display: inline-block;
+    padding: 0.5rem 0;
+}
+
+.publications-table {
+    overflow-x: auto;
+    margin: 2rem 0;
+}
+
+.publications-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.publications-table th,
+.publications-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.publications-table th {
+    font-weight: normal;
+    color: #666;
+}
+
+.publications-table tr:hover {
+    background: #f9f9f9;
+}
+
+.publications-table a {
+    color: inherit;
+}
+
+/* Add these to your existing styles.css */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.error {
+    text-align: center;
+    padding: 2rem;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.gallery-item {
+    display: block;
+    text-decoration: none;
+    aspect-ratio: 1;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
+} 

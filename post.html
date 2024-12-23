@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Loading Post... - Nathan Simpson</title>
+    <link rel="shortcut icon" href="https://cdn.nasimpson.com/nas-icon-198x198.png" type="image/png">
+    <link rel="icon" href="https://cdn.nasimpson.com/nas-icon-198x198.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe.css" rel="stylesheet">
+    <script src="js/components.js"></script>
+    <style>
+        .post-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1em;
+        }
+        .post-meta {
+            color: #666;
+            margin-bottom: 2em;
+        }
+        .post-content {
+            line-height: 1.6;
+        }
+        .loading {
+            text-align: center;
+            padding: 2em;
+            color: #666;
+        }
+        .error {
+            color: #721c24;
+            background-color: #f8d7da;
+            padding: 1em;
+            margin: 1em 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .gallery-item {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+        .gallery-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.2s;
+        }
+        .gallery-thumbnail:hover {
+            transform: scale(1.02);
+        }
+        .gallery-caption {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .pswp__caption__title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 0.5em;
+        }
+        .pswp__caption__text {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="post-container">
+            <!-- Post content will be inserted here -->
+        </div>
+        <div id="galleryContainer" class="gallery-grid" style="display: none;">
+            <!-- Gallery items will be inserted here -->
+        </div>
+    </main>
+
+    <!-- PhotoSwipe template -->
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="pswp__bg"></div>
+        <div class="pswp__scroll-wrap">
+            <div class="pswp__container">
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+            </div>
+            <div class="pswp__ui pswp__ui--hidden">
+                <div class="pswp__top-bar">
+                    <div class="pswp__counter"></div>
+                    <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                    <button class="pswp__button pswp__button--share" title="Share"></button>
+                    <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                    <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                    <div class="pswp__preloader">
+                        <div class="pswp__preloader__icn">
+                            <div class="pswp__preloader__cut">
+                                <div class="pswp__preloader__donut"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                    <div class="pswp__share-tooltip"></div>
+                </div>
+                <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+                <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+                <div class="pswp__caption">
+                    <div class="pswp__caption__center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PhotoSwipe scripts -->
+    <script type="module">
+        import PhotoSwipeLightbox from 'https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe-lightbox.esm.min.js';
+        import PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5.3.8/dist/photoswipe.esm.min.js';
+
+        window.PhotoSwipe = PhotoSwipe;
+        window.PhotoSwipeLightbox = PhotoSwipeLightbox;
+    </script>
+
+    <script>
+        let lightbox = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializePage(false);
+            loadSinglePost();
+        });
+
+        async function loadSinglePost() {
+            const container = document.querySelector('.post-container');
+            container.innerHTML = '<div class="loading">Loading post...</div>';
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const slug = urlParams.get('slug');
+
+                if (!slug) {
+                    throw new Error('No post slug provided in URL');
+                }
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                // First get the post ID from the minimal endpoint
+                const minimalResponse = await fetch(`https://blog-api.nasimpson.workers.dev/public/posts-minimal`, {
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!minimalResponse.ok) {
+                    throw new Error(`HTTP error! status: ${minimalResponse.status}`);
+                }
+
+                const posts = await minimalResponse.json();
+                const post = posts.find(p => p.slug === slug);
+                
+                if (!post) {
+                    throw new Error('Post not found');
+                }
+
+                // Now get the full post with embeds using the ID
+                const fullResponse = await fetch(`https://blog-api.nasimpson.workers.dev/public/posts-full/${post.id}`, {
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }).finally(() => {
+                    clearTimeout(timeoutId);
+                });
+
+                if (!fullResponse.ok) {
+                    if (fullResponse.status === 404) {
+                        throw new Error('Post not found');
+                    }
+                    throw new Error(`HTTP error! status: ${fullResponse.status}`);
+                }
+
+                const fullPost = await fullResponse.json();
+                console.log('Post data received:', fullPost);
+                
+                if (!fullPost || !fullPost.title) {
+                    throw new Error('Invalid post data received');
+                }
+
+                renderPost(fullPost);
+                document.title = `${fullPost.title} - Nathan Simpson`;
+
+                // Handle gallery type posts
+                if (fullPost.type === 'gallery' && fullPost.embeds && fullPost.embeds.length > 0) {
+                    console.log('Setting up gallery with embeds:', fullPost.embeds);
+                    await setupGallery(fullPost.embeds);
+                    document.getElementById('galleryContainer').style.display = 'grid';
+                }
+            } catch (error) {
+                console.error('Error loading post:', error);
+                let errorMessage = 'Failed to load post. Please try again later.';
+                
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out. The server is taking too long to respond.';
+                } else if (error.message === 'Post not found' || error.message === 'No post slug provided in URL') {
+                    errorMessage = error.message;
+                }
+
+                container.innerHTML = `
+                    <div class="error">
+                        ${errorMessage}
+                        <br>
+                        <button onclick="loadSinglePost()" style="margin-top: 1em;">Retry</button>
+                        <br>
+                        <a href="index.html" style="display: inline-block; margin-top: 1em;">Back to Home</a>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPost(post) {
+            const container = document.querySelector('.post-container');
+            const publishDate = post.published_at ? 
+                new Date(post.published_at).toISOString().split('T')[0].replace(/-/g, '/') : 
+                '';
+
+            container.innerHTML = `
+                <article class="post">
+                    <h1>${post.title}</h1>
+                    <div class="post-meta">
+                        <span class="views">${post.viewCount || 0} views</span>
+                        ${publishDate ? `<span class="date">${publishDate}</span>` : ''}
+                        ${post.tags ? `<span class="tags">Tags: ${post.tags}</span>` : ''}
+                    </div>
+                    <div class="post-content">
+                        ${post.content}
+                    </div>
+                </article>
+            `;
+        }
+
+        async function setupGallery(embeds) {
+            console.log('Setting up gallery with embeds:', embeds);
+            const galleryContainer = document.getElementById('galleryContainer');
+            
+            // Create gallery items
+            const imageLoadPromises = embeds.map(embed => {
+                console.log('Processing embed:', embed);
+                return new Promise((resolve, reject) => {
+                    const galleryItem = document.createElement('a');
+                    const fullUrl = `https://cdn.nasimpson.com/${embed.path}`;
+                    galleryItem.href = fullUrl;
+                    galleryItem.className = 'gallery-item';
+                    
+                    console.log('Creating image with URL:', fullUrl);
+                    
+                    // Create thumbnail
+                    const img = document.createElement('img');
+                    img.src = fullUrl;
+                    img.alt = embed.caption || '';
+                    img.className = 'gallery-thumbnail';
+                    
+                    // Wait for image to load to get dimensions
+                    img.onload = function() {
+                        console.log('Image loaded:', fullUrl);
+                        galleryItem.dataset.pswpWidth = this.naturalWidth;
+                        galleryItem.dataset.pswpHeight = this.naturalHeight;
+                        
+                        // Add metadata for PhotoSwipe - only caption, no title
+                        if (embed.caption) {
+                            galleryItem.dataset.caption = embed.caption;
+                            
+                            // Add caption if exists
+                            const caption = document.createElement('div');
+                            caption.className = 'gallery-caption';
+                            caption.textContent = embed.caption;
+                            galleryItem.appendChild(caption);
+                        }
+                        
+                        galleryItem.appendChild(img);
+                        galleryContainer.appendChild(galleryItem);
+                        resolve();
+                    };
+                    
+                    img.onerror = () => {
+                        console.error('Failed to load image:', fullUrl);
+                        reject(new Error(`Failed to load image: ${embed.path}`));
+                    };
+                });
+            });
+
+            // Wait for all images to load
+            try {
+                await Promise.all(imageLoadPromises);
+                console.log('All gallery images loaded');
+                
+                // Initialize PhotoSwipe
+                lightbox = new window.PhotoSwipeLightbox({
+                    gallery: '#galleryContainer',
+                    children: 'a',
+                    pswpModule: window.PhotoSwipe,
+                    showHideAnimationType: 'fade',
+                    
+                    // Custom options
+                    padding: { top: 20, bottom: 20, left: 20, right: 20 },
+                    bgOpacity: 0.9,
+                    
+                    // Customize the caption
+                    ui: {
+                        caption: {
+                            type: 'auto'
+                        }
+                    }
+                });
+
+                // Add custom caption
+                lightbox.on('uiRegister', function() {
+                    lightbox.pswp.ui.registerElement({
+                        name: 'custom-caption',
+                        order: 9,
+                        isButton: false,
+                        appendTo: 'root',
+                        html: 'Caption text',
+                        onInit: (el, pswp) => {
+                            lightbox.pswp.on('change', () => {
+                                const currSlideElement = lightbox.pswp.currSlide.data.element;
+                                let captionHTML = '';
+                                
+                                if (currSlideElement.dataset.caption) {
+                                    captionHTML = `<div class="pswp__caption__text">${currSlideElement.dataset.caption}</div>`;
+                                }
+                                
+                                el.innerHTML = captionHTML;
+                            });
+                        }
+                    });
+                });
+
+                // Initialize the lightbox
+                lightbox.init();
+                console.log('PhotoSwipe initialized');
+            } catch (error) {
+                console.error('Error setting up gallery:', error);
+                galleryContainer.innerHTML = '<p>Error loading gallery images.</p>';
+            }
+        }
+    </script>
+</body>
+</html> 
