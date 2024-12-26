@@ -1,0 +1,8 @@
+name = "nsblog"
+compatibility_date = "2023-12-01"
+
+[vars]
+API_BASE = "https://blog-api.nasimpson.workers.dev/public"
+
+[site]
+bucket = "." 
